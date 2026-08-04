@@ -22,8 +22,8 @@ const page = () => {
 
   return (
     <>
-      <div className='flex items-center justify-center w-full h-screen'>
-        <div className='container w-[45vw] border border-[#2b3242] rounded-lg '>
+      
+        <div className='container w-[45vw] border border-[#2b3242] rounded-lg relative mx-auto mt-14'>
           <div className="header flex flex-col gap-1 p-6 px-7 ">
             <samp className='text-[#e0a63d] text-sm'>DAILY WORK ORDER</samp>
             <div className='flex justify-between'>
@@ -51,10 +51,12 @@ const page = () => {
 
 </div>
           </div>
-          <div className="middle"></div>
+          <div className="middle">
+            
+          </div>
           <div className="Bottom"></div>
         </div>
-      </div>
+     
     </>
   )
 }
