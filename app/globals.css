@@ -28,3 +28,7 @@ background: #12161d;
 samp{
   font-family: monospace;
 }
+#btn1::after{
+border-color: rgb(234, 230, 230);
+background: #000;
+}
