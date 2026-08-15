@@ -1,8 +1,20 @@
 'use client'
+import { useState, useEffect, useRef } from 'react'
 
-import { useEffect, useRef, useState } from 'react'
+// Custom hook to check if component is hydrated
+function useIsHydrated() {
+  const [isHydrated, setIsHydrated] = useState(false)
+
+  useEffect(() => {
+    setIsHydrated(true)
+  }, [])
+
+  return isHydrated
+}
 
 const Page = () => {
+  const isHydrated = useIsHydrated()
+
   const [dateInfo, setDateInfo] = useState({
     day: '',
     date: '',
@@ -18,19 +30,33 @@ const Page = () => {
   const ref = useRef(null)
   const allRef = useRef(null)
 
+  // Load from localStorage after hydration
+  useEffect(() => {
+    if (!isHydrated) return
+    try {
+      const stored = localStorage.getItem('todos')
+      if (stored) {
+        setTodoes(JSON.parse(stored))
+      }
+    } catch (e) {
+      console.error('Failed to parse todos from localStorage', e)
+    }
+  }, [isHydrated])
+
+  // Sync to localStorage when todos change (only after hydration)
+  useEffect(() => {
+    if (!isHydrated) return
+    localStorage.setItem('todos', JSON.stringify(todoes))
+  }, [todoes, isHydrated])
+
+  // Set Date Data
   useEffect(() => {
     const today = new Date()
 
     setDateInfo({
-      day: new Intl.DateTimeFormat('en-US', {
-        weekday: 'long',
-      }).format(today),
-      date: new Intl.DateTimeFormat('en-US', {
-        day: 'numeric',
-      }).format(today),
-      month: new Intl.DateTimeFormat('en-US', {
-        month: 'long',
-      }).format(today),
+      day: new Intl.DateTimeFormat('en-US', { weekday: 'long' }).format(today),
+      date: new Intl.DateTimeFormat('en-US', { day: 'numeric' }).format(today),
+      month: new Intl.DateTimeFormat('en-US', { month: 'long' }).format(today),
     })
 
     allRef.current?.focus()
@@ -38,7 +64,7 @@ const Page = () => {
 
   useEffect(() => {
     if (!ref.current) return
-
+    
     ref.current.style.color = value ? 'white' : '#5b6478'
   }, [value])
 
@@ -63,7 +89,7 @@ const Page = () => {
       setEditingId(null)
       setValue('')
       ref.current?.blur()
-
+      
       return
     }
 
@@ -144,9 +170,33 @@ const Page = () => {
 
     return 'bg-[#e0a63d]/10 text-[#e0c56f] border border-[#e0a63d]/10'
   }
+const handleDeleteCompleted = () => {
+  const updatedTodoes = todoes.filter((todo) => !todo.completed)
+  setTodoes(updatedTodoes)
+}
 
-  return (
-    <div className="container w-[37vw] min-w-[500px] border border-[#2b3242] rounded-xl relative mx-auto mt-14 shrink">
+const handleDownload = async () => {
+
+    const text = JSON.stringify(todoes, null, 2)
+    const file = new Blob([text], { type: 'text/plain' })
+    const url = URL.createObjectURL(file)
+    const link = document.createElement('a')
+    link.href = url
+    link.download = 'todoes.txt'
+    document.body.appendChild(link)
+    link.click()
+    document.body.removeChild(link)
+    
+    setTimeout(() => URL.revokeObjectURL(url), 100)
+setTimeout(() => alert('Your file has been downloaded successfully'), 3000 )
+  
+
+}
+
+
+return (
+  
+     <div className="container w-[33vw] min-w-125 border border-[#2b3242] rounded-xl relative mx-auto mt-14 shrink">
 
       <div className="header flex flex-col gap-1 p-6 px-7 bg-[#1b212c]">
         <span className="text-[#e0a63d] text-sm">
@@ -166,7 +216,7 @@ const Page = () => {
 
         <div className="flex gap-4 px-1 py-3">
           <div className="flex flex-col">
-            <strong className="text-[#e0a63d]">
+            <strong className="text-[#e0a63d]" suppressHydrationWarning>
               {openCount}
             </strong>
 
@@ -176,7 +226,7 @@ const Page = () => {
           </div>
 
           <div className="flex flex-col">
-            <strong className="text-[#5fa88a]">
+            <strong className="text-[#5fa88a]" suppressHydrationWarning>
               {doneCount}
             </strong>
 
@@ -186,7 +236,7 @@ const Page = () => {
           </div>
 
           <div className="flex flex-col">
-            <strong className="text-white">
+            <strong className="text-white" suppressHydrationWarning>
               {todoes.length}
             </strong>
 
@@ -196,7 +246,7 @@ const Page = () => {
           </div>
         </div>
 
-        <div className="h-2 w-[90%] mx-auto rounded-xl bg-[#5b6478]/10 overflow-hidden">
+        <div className="h-2 w-[90%] mx-auto rounded-xl bg-[#5b6478]/10 overflow-hidden" suppressHydrationWarning>
           <div
             className="h-full rounded-xl bg-[#5fa88a] transition-all duration-300"
             style={{
@@ -314,11 +364,11 @@ const Page = () => {
 
         </div>
 
-        <div className="border border-[#2b3242] w-full p-6 px-7">
+        <div className="border border-[#2b3242] w-full p-6 px-7" >
 
           {filteredTodos.length > 0 ? (
 
-            <ul className="flex flex-col gap-3">
+            <ul className="flex flex-col gap-3" >
 
               {filteredTodos.map((todo, index) => (
 
@@ -432,11 +482,29 @@ const Page = () => {
 
               ))}
 
+              <div className="mt-4 flex gap-2">
+                <button
+                  onClick={handleDownload}
+                  className="flex-1 px-6 rounded-lg text-[#e0c56f] border border-[#e0a63d]/30 font-medium text-sm py-2 transition-all duration-500 hover:-translate-y-2 hover:cursor-pointer hover:bg-[#e0a63d]/10 hover:border-[#e0a63d] hover:text-white hover:shadow-[0_0_20px_rgba(224,166,61,0.2)]"
+                >
+                  Download Your Todos
+                </button>
+                {doneCount > 0 && (
+                  <button
+                    onClick={handleDeleteCompleted}
+                    className="flex-1 px-6 rounded-lg text-[#e0c56f] border border-[#e0a63d]/30 font-medium text-sm py-2 transition-all duration-500 hover:-translate-y-2 hover:cursor-pointer hover:bg-[#e0a63d]/10 hover:border-[#e0a63d] hover:text-white hover:shadow-[0_0_20px_rgba(224,166,61,0.2)]"
+                  >
+                    Clear Completed
+                  </button>
+                )}
+              </div>
+
             </ul>
 
           ) : (
 
-            <div className="empty-state flex flex-col mx-auto text-center items-center gap-2 py-15 text-[#5b6478]">
+            
+  <div className="empty-state flex flex-col mx-auto text-center items-center gap-2 py-15 text-[#5b6478]">
 
               <svg
                 className="h-9"
@@ -454,16 +522,23 @@ const Page = () => {
                 <br />
                 above.
               </p>
-
-            </div>
+</div>
 
           )}
+          <div className="flex justify-between items-center mt-6 text-[#5b6478] text-sm">
+  <samp>
+  {todoes.length} items left
+  </samp>
+  <samp onClick={handleDeleteCompleted}>Clear Completed</samp>
+ 
+</div>
 
         </div>
 
       </div>
 
     </div>
+
   )
 }
 
