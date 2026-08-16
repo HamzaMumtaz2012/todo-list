@@ -11,7 +11,8 @@ export const metadata = {
     'daily planner online',
     'productivity checklist tool',
     'minimalist task organizer',
-    'track daily goals'
+    'track daily goals',
+    'hamza ki todo list'
   ],
   openGraph: {
     title: 'FocusTask | Best Free Online To-Do List & Task Manager',
