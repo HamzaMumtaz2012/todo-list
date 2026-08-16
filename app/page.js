@@ -485,18 +485,11 @@ return (
               <div className="mt-4 flex gap-2">
                 <button
                   onClick={handleDownload}
-                  className="flex-1 px-6 rounded-lg text-[#e0c56f] border border-[#e0a63d]/30 font-medium text-sm py-2 transition-all duration-500 hover:-translate-y-2 hover:cursor-pointer hover:bg-[#e0a63d]/10 hover:border-[#e0a63d] hover:text-white hover:shadow-[0_0_20px_rgba(224,166,61,0.2)]"
+                  className="mx-auto px-6 rounded-lg text-[#e0c56f] border border-[#e0a63d]/30 font-medium text-sm py-2 transition-all duration-500 hover:-translate-y-2 hover:cursor-pointer hover:bg-[#e0a63d]/10 hover:border-[#e0a63d] hover:text-white hover:shadow-[0_0_20px_rgba(224,166,61,0.2)]"
                 >
                   Download Your Todos
                 </button>
-                {doneCount > 0 && (
-                  <button
-                    onClick={handleDeleteCompleted}
-                    className="flex-1 px-6 rounded-lg text-[#e0c56f] border border-[#e0a63d]/30 font-medium text-sm py-2 transition-all duration-500 hover:-translate-y-2 hover:cursor-pointer hover:bg-[#e0a63d]/10 hover:border-[#e0a63d] hover:text-white hover:shadow-[0_0_20px_rgba(224,166,61,0.2)]"
-                  >
-                    Clear Completed
-                  </button>
-                )}
+               
               </div>
 
             </ul>
